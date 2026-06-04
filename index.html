@@ -1,0 +1,556 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); color: var(--color-text-primary); }
+.app { max-width: 680px; margin: 0 auto; padding: 0 0 2rem; }
+.tabs { display: flex; gap: 4px; padding: 1rem 0 0.5rem; position: sticky; top: 0; background: var(--color-background-primary); z-index: 10; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 1rem; }
+.tab { flex: 1; padding: 8px 4px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); background: transparent; cursor: pointer; font-size: 12px; color: var(--color-text-secondary); text-align: center; transition: all 0.15s; }
+.tab.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
+.section { display: none; }
+.section.active { display: block; }
+
+.week-grid { display: flex; flex-direction: column; gap: 8px; }
+.day-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.day-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; }
+.day-name { font-weight: 500; font-size: 14px; flex: 1; }
+.day-type { font-size: 11px; color: var(--color-text-secondary); background: var(--color-background-secondary); padding: 3px 8px; border-radius: 20px; }
+.day-check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--color-border-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+.day-check.done { background: #1D9E75; border-color: #1D9E75; color: white; }
+.day-body { display: none; padding: 0 16px 16px; border-top: 0.5px solid var(--color-border-tertiary); }
+.day-body.open { display: block; }
+.exercise-list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.exercise-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); }
+.ex-check { width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid var(--color-border-secondary); flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.ex-check.done { background: #1D9E75; border-color: #1D9E75; color: white; }
+.ex-info { flex: 1; }
+.ex-name { font-size: 13px; font-weight: 500; }
+.ex-detail { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+.ex-demo { font-size: 11px; color: #185FA5; cursor: pointer; text-decoration: underline; }
+
+.intensity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.int-green { background: #1D9E75; }
+.int-amber { background: #EF9F27; }
+.int-red { background: #E24B4A; }
+
+.timer-section { margin-top: 14px; padding: 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); }
+.timer-display { font-size: 36px; font-weight: 500; text-align: center; font-variant-numeric: tabular-nums; letter-spacing: 2px; margin: 8px 0; }
+.timer-label { font-size: 11px; color: var(--color-text-secondary); text-align: center; margin-bottom: 8px; }
+.timer-controls { display: flex; gap: 8px; justify-content: center; }
+.timer-btn { padding: 8px 20px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: transparent; cursor: pointer; font-size: 13px; font-weight: 500; }
+.timer-btn.primary { background: #1D9E75; color: white; border-color: #1D9E75; }
+.timer-phase { font-size: 12px; font-weight: 500; text-align: center; margin-top: 6px; }
+.phase-work { color: #E24B4A; }
+.phase-rest { color: #1D9E75; }
+
+.progress-bar-wrap { height: 4px; background: var(--color-border-tertiary); border-radius: 2px; margin-top: 8px; }
+.progress-bar-fill { height: 100%; border-radius: 2px; background: #1D9E75; transition: width 1s linear; }
+
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 100; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--color-background-primary); border-radius: var(--border-radius-lg); padding: 20px; max-width: 340px; width: 90%; border: 0.5px solid var(--color-border-tertiary); }
+.modal h3 { font-size: 15px; font-weight: 500; margin-bottom: 8px; }
+.modal p { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 8px; }
+.modal-close { width: 100%; padding: 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: transparent; cursor: pointer; font-size: 14px; margin-top: 12px; }
+.anim-box { width: 100%; height: 120px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); display: flex; align-items: center; justify-content: center; margin: 12px 0; position: relative; overflow: hidden; }
+.stick-figure { font-size: 48px; line-height: 1; transition: transform 0.5s ease; }
+
+.meal-grid { display: flex; flex-direction: column; gap: 10px; }
+.meal-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; }
+.meal-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.meal-time { font-size: 11px; color: var(--color-text-secondary); font-weight: 400; }
+.meal-options { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.meal-option { font-size: 12px; color: var(--color-text-secondary); padding: 8px 10px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); line-height: 1.5; }
+.meal-option strong { color: var(--color-text-primary); font-weight: 500; }
+.macro-tag { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-right: 3px; }
+.tag-p { background: #E1F5EE; color: #0F6E56; }
+.tag-g { background: #FAEEDA; color: #854F0B; }
+.tag-l { background: #FBEAF0; color: #993556; }
+
+.guide-section { margin-bottom: 1.5rem; }
+.guide-title { font-size: 15px; font-weight: 500; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.food-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.food-item { padding: 10px 12px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); }
+.food-item-name { font-size: 12px; font-weight: 500; margin-bottom: 2px; }
+.food-item-qty { font-size: 11px; color: var(--color-text-secondary); }
+.food-cat { font-size: 10px; padding: 2px 6px; border-radius: 10px; display: inline-block; margin-bottom: 4px; }
+
+.macro-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1rem; }
+.macro-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px; text-align: center; }
+.macro-card-label { font-size: 10px; color: var(--color-text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+.macro-card-val { font-size: 20px; font-weight: 500; }
+.macro-card-sub { font-size: 10px; color: var(--color-text-secondary); margin-top: 2px; }
+
+.tip-box { background: var(--color-background-secondary); border-left: 2px solid #1D9E75; padding: 10px 14px; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; margin-bottom: 8px; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary); }
+.tip-box strong { color: var(--color-text-primary); }
+
+.week-progress { display: flex; gap: 6px; margin-bottom: 1rem; }
+.week-dot { flex: 1; height: 6px; border-radius: 3px; background: var(--color-border-tertiary); transition: background 0.3s; }
+.week-dot.done { background: #1D9E75; }
+</style>
+
+<div class="app">
+  <div style="padding: 1rem 0 0.5rem;">
+    <p style="font-size: 12px; color: var(--color-text-secondary);">Programme personnalisé</p>
+    <h2 style="font-size: 20px; font-weight: 500;">Mon coach bien-être</h2>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('programme')"><i class="ti ti-calendar" aria-hidden="true"></i><br>Programme</button>
+    <button class="tab" onclick="showTab('nutrition')"><i class="ti ti-apple" aria-hidden="true"></i><br>Nutrition</button>
+    <button class="tab" onclick="showTab('guide')"><i class="ti ti-book" aria-hidden="true"></i><br>Guide aliments</button>
+  </div>
+
+  <div id="tab-programme" class="section active">
+    <div class="week-progress" id="weekProgress"></div>
+    <p style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 12px;" id="weekProgressText">Clique sur une journée pour voir les exercices</p>
+    <div class="week-grid" id="weekGrid"></div>
+  </div>
+
+  <div id="tab-nutrition" class="section">
+    <div class="macro-cards">
+      <div class="macro-card">
+        <div class="macro-card-label">Protéines</div>
+        <div class="macro-card-val" style="color:#1D9E75;">100g</div>
+        <div class="macro-card-sub">objectif/jour</div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-card-label">Glucides</div>
+        <div class="macro-card-val" style="color:#EF9F27;">170g</div>
+        <div class="macro-card-sub">complexes/jour</div>
+      </div>
+      <div class="macro-card">
+        <div class="macro-card-label">Lipides</div>
+        <div class="macro-card-val" style="color:#D4537E;">60g</div>
+        <div class="macro-card-sub">bons gras/jour</div>
+      </div>
+    </div>
+    <div class="meal-grid" id="mealGrid"></div>
+  </div>
+
+  <div id="tab-guide" class="section">
+    <div class="guide-section">
+      <div class="guide-title">Protéines — construire & raffermir</div>
+      <div class="food-grid" id="proteinGrid"></div>
+    </div>
+    <div class="guide-section">
+      <div class="guide-title">Glucides complexes — énergie durable</div>
+      <div class="food-grid" id="carbGrid"></div>
+    </div>
+    <div class="guide-section">
+      <div class="guide-title">Bons lipides — hormones & satiété</div>
+      <div class="food-grid" id="fatGrid"></div>
+    </div>
+    <div class="guide-section">
+      <div class="guide-title">Conseils anti-cortisol</div>
+      <div class="tip-box"><strong>Noix du Brésil :</strong> 2-3 par jour max — sélénium essentiel pour la thyroïde</div>
+      <div class="tip-box"><strong>Magnésium :</strong> 300mg le soir (bisglycinate en pharmacie) — aide le sommeil et réduit le stress</div>
+      <div class="tip-box"><strong>Café :</strong> maximum 2/jour, pas après 14h — aggrave le cortisol</div>
+      <div class="tip-box"><strong>Hydratation :</strong> 1,5L/jour minimum, 2L les jours de sport</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <h3 id="modalTitle"></h3>
+    <div class="anim-box" id="animBox"></div>
+    <p id="modalDesc"></p>
+    <p id="modalTips" style="font-size:12px; color: var(--color-text-secondary);"></p>
+    <button class="modal-close" onclick="document.getElementById('modal').classList.remove('open')">Fermer</button>
+  </div>
+</div>
+
+<script>
+const DAYS = [
+  {
+    name: "Lundi", type: "Pilates fondamental", intensity: "green",
+    duration: "20 min",
+    hasTimer: true, timerWork: 45, timerRest: 15, timerRounds: 5,
+    exercises: [
+      { name: "Respiration diaphragmatique", detail: "2 min · allongée", demo: "respiration" },
+      { name: "Hundred", detail: "100 battements · jambes à 45°", demo: "hundred" },
+      { name: "Glute bridge", detail: "3×15 · tenu 3s en haut", demo: "glutebridge" },
+      { name: "Side leg series", detail: "12 reps chaque côté · lest cheville", demo: "sideleglifts" },
+      { name: "Planche sur coudes", detail: "3×20 sec", demo: "planche" },
+      { name: "Child's pose", detail: "2 min · récupération", demo: "childpose" }
+    ]
+  },
+  {
+    name: "Mardi", type: "Padel", intensity: "amber",
+    duration: "Selon session",
+    hasTimer: false,
+    exercises: [
+      { name: "Match de padel", detail: "Cardio naturel compté comme séance", demo: null },
+      { name: "Étirements après", detail: "5 min · mollets, hanches, épaules", demo: "etirements" }
+    ]
+  },
+  {
+    name: "Mercredi", type: "Callisthénie", intensity: "amber",
+    duration: "20 min · 3 tours",
+    hasTimer: true, timerWork: 40, timerRest: 20, timerRounds: 6,
+    exercises: [
+      { name: "Squat lent", detail: "3s descente · 1s pause bas · 2s montée", demo: "squat" },
+      { name: "Pompes inclinées", detail: "Mains sur canapé ou sur genoux", demo: "pompes" },
+      { name: "Fentes alternées", detail: "10 chaque jambe", demo: "fentes" },
+      { name: "Dips sur chaise", detail: "Triceps + épaules · 12 reps", demo: "dips" },
+      { name: "Dead bug", detail: "10 reps · dos plat au sol", demo: "deadbug" },
+      { name: "Superman", detail: "12 reps · allongée ventre", demo: "superman" }
+    ]
+  },
+  {
+    name: "Jeudi", type: "Corde à sauter", intensity: "amber",
+    duration: "15 min",
+    hasTimer: true, timerWork: 30, timerRest: 30, timerRounds: 10,
+    exercises: [
+      { name: "Échauffement", detail: "3 min · marche + rotations épaules", demo: null },
+      { name: "Corde à sauter", detail: "30s effort / 30s marche × 10 rounds", demo: "corde" },
+      { name: "Étirements mollets", detail: "2 min · chevilles aussi", demo: "etirements" }
+    ]
+  },
+  {
+    name: "Vendredi", type: "Repos actif", intensity: "green",
+    duration: "20-30 min optionnel",
+    hasTimer: false,
+    exercises: [
+      { name: "Marche rapide", detail: "20-30 min dehors si possible", demo: null },
+      { name: "Étirements libres", detail: "Ce que ton corps réclame", demo: "etirements" }
+    ]
+  },
+  {
+    name: "Samedi", type: "Pilates long ou Padel", intensity: "amber",
+    duration: "30 min",
+    hasTimer: true, timerWork: 45, timerRest: 15, timerRounds: 8,
+    exercises: [
+      { name: "Roll up", detail: "8 reps · vertèbre par vertèbre", demo: "rollup" },
+      { name: "Single leg stretch", detail: "10 chaque jambe", demo: "singleleg" },
+      { name: "Glute bridge pulsé", detail: "20 pulsations", demo: "glutebridge" },
+      { name: "Abductions debout", detail: "12 chaque côté · lest cheville", demo: "sideleglifts" },
+      { name: "Bicycle crunch", detail: "20 reps", demo: "bicycle" },
+      { name: "Planche latérale", detail: "30s chaque côté", demo: "planche" }
+    ]
+  },
+  {
+    name: "Dimanche", type: "Repos & récupération", intensity: "green",
+    duration: "10 min",
+    hasTimer: false,
+    exercises: [
+      { name: "Étirements globaux", detail: "10 min · tout le corps", demo: "etirements" },
+      { name: "Préparation batch cooking", detail: "Overnight oats + riz + œufs durs", demo: null }
+    ]
+  }
+];
+
+const MEALS = [
+  {
+    title: "Petit-déjeuner", time: "Dans les 45 min après le réveil",
+    icon: "ti-sunrise",
+    options: [
+      { label: "Option rapide (2 min)", text: "Skyr + 1 c. de miel + 2-3 noix du Brésil", tags: ["P","L"] },
+      { label: "Préparé la veille (0 min matin)", text: "Overnight oats GF + lait végétal + banane écrasée + beurre de cacahuète", tags: ["G","P","L"] },
+      { label: "Si solide difficile", text: "Smoothie : banane + skyr + lait d'amande + épinards — 3 min au blender", tags: ["P","G"] }
+    ]
+  },
+  {
+    title: "Déjeuner", time: "Repas principal — mange bien !",
+    icon: "ti-sun",
+    options: [
+      { label: "Base batch cooking", text: "Riz ou quinoa (cuit d'avance) + poulet / thon / œufs durs + légumes rôtis + filet d'huile d'olive", tags: ["P","G","L"] },
+      { label: "Bowl express", text: "Riz + boîte de thon + avocat + concombre + sauce citron-soja", tags: ["P","G","L"] },
+      { label: "Version conjoint", text: "Même sauce que lui — toi sur riz, lui sur ses pâtes", tags: ["G","P"] }
+    ]
+  },
+  {
+    title: "Collation post-sport", time: "Dans les 30-60 min après l'effort",
+    icon: "ti-bolt",
+    options: [
+      { label: "Récupération idéale", text: "Skyr ou fromage blanc 0% + banane", tags: ["P","G"] },
+      { label: "Si pas faim", text: "1 poignée d'amandes + carré de chocolat noir 70%", tags: ["L","G"] }
+    ]
+  },
+  {
+    title: "Dîner", time: "Léger mais complet",
+    icon: "ti-moon",
+    options: [
+      { label: "Ultra rapide (10 min)", text: "Omelette 3 œufs + champignons + épinards + feta — naturellement sans gluten", tags: ["P","L"] },
+      { label: "Partagé avec conjoint", text: "Wok légumes + riz pour toi, pâtes de lentilles pour toi si lui mange des pâtes", tags: ["P","G","L"] },
+      { label: "Soupe réconfort", text: "Lentilles corail + bouillon + carotte + cumin — 15 min, mixer et c'est prêt", tags: ["P","G"] }
+    ]
+  }
+];
+
+const PROTEINS = [
+  { name: "Œufs entiers", qty: "2-3 par repas", note: "Sélénium thyroïde" },
+  { name: "Poulet / dinde", qty: "120-150g", note: "Maigre, polyvalent" },
+  { name: "Saumon", qty: "120g", note: "Oméga-3 anti-cortisol" },
+  { name: "Thon en boîte", qty: "1 boîte (120g)", note: "Express, sans cuisson" },
+  { name: "Skyr / yaourt grec", qty: "150-200g", note: "Satiété + probiotiques" },
+  { name: "Pois chiches", qty: "150g cuits", note: "Fibres + protéines végé" },
+  { name: "Lentilles corail", qty: "100g secs", note: "Cuisson rapide 10 min" },
+  { name: "Tofu ferme", qty: "100-150g", note: "Facile à poêler" }
+];
+
+const CARBS = [
+  { name: "Riz basmati", qty: "60g secs = 180g cuit", note: "Base batch cooking" },
+  { name: "Quinoa", qty: "60g secs", note: "Protéines complètes" },
+  { name: "Patate douce", qty: "150g", note: "Anti-cortisol, goûteuse" },
+  { name: "Flocons avoine GF", qty: "50g", note: "Petit-déjeuner parfait" },
+  { name: "Pâtes lentilles", qty: "75g secs", note: "2× plus protéines" },
+  { name: "Sarrasin", qty: "60g secs", note: "Sans gluten naturel" },
+  { name: "Banane", qty: "1 moyenne", note: "Potassium + énergie" },
+  { name: "Légumineuses", qty: "150g cuites", note: "Fibres + index bas" }
+];
+
+const FATS = [
+  { name: "Avocat", qty: "½ par jour", note: "Anti-inflammatoire" },
+  { name: "Huile d'olive", qty: "1-2 c. à soupe", note: "Cuisson + assaisonnement" },
+  { name: "Noix du Brésil", qty: "2-3 max/jour", note: "Sélénium thyroïde" },
+  { name: "Amandes", qty: "1 poignée (25g)", note: "Magnésium + satiété" },
+  { name: "Beurre cacahuète", qty: "1 c. à soupe", note: "Sans sucre ajouté" },
+  { name: "Chocolat noir 70%", qty: "2 carrés", note: "Magnésium + plaisir" }
+];
+
+const DEMOS = {
+  respiration: { title: "Respiration diaphragmatique", emoji: "🧘", desc: "Allonge-toi sur le dos, genoux fléchis. Place une main sur le ventre, l'autre sur la poitrine. Inspire 4 secondes par le nez — seul le ventre monte. Expire lentement 6 secondes par la bouche.", tips: "Active directement le système parasympathique = anti-cortisol immédiat." },
+  hundred: { title: "The Hundred", emoji: "🏋️", desc: "Allongée sur le dos, lève les jambes à 45°, la tête et les épaules décollées. Les bras tendus le long du corps pompent de bas en haut (petits mouvements). Compte 100 battements en respirant rythmiquement.", tips: "Garde le bas du dos collé au sol. Si c'est trop dur, plie les genoux à 90°." },
+  glutebridge: { title: "Glute Bridge", emoji: "🍑", desc: "Allongée sur le dos, pieds à plat au sol, largeur de hanches. Monte le bassin en contractant fort les fessiers. Tiens 3 secondes en haut, descends lentement.", tips: "Pousse dans les talons, pas dans les orteils. Pour intensifier : ajoute un lest sur le bassin." },
+  sideleglifts: { title: "Abductions latérales", emoji: "🦵", desc: "Allongée sur le côté, corps aligné. Lève la jambe du dessus à 45°, maintiens 1 seconde en haut, descends sans poser. Garde le pied en flexion (orteil vers toi).", tips: "Lest cheville recommandé. Ne laisse pas la hanche basculer en arrière." },
+  planche: { title: "Planche sur coudes", emoji: "💪", desc: "Sur les avant-bras, corps droit de la tête aux talons. Contracte les abdos, les fessiers et les cuisses en même temps. Ne laisse pas les hanches monter ou descendre.", tips: "Débutante : commence sur les genoux. Objectif : 3 × 30 secondes en 4 semaines." },
+  childpose: { title: "Child's Pose", emoji: "😌", desc: "À genoux, assise sur les talons, penche le buste en avant, bras étendus devant toi ou le long du corps. Relâche complètement la nuque et les épaules.", tips: "Respire lentement. C'est le moment de récupérer mentalement aussi." },
+  squat: { title: "Squat lent", emoji: "🦵", desc: "Pieds largeur d'épaules, orteils légèrement ouverts. Descends en 3 secondes, genoux dans l'axe des orteils. Pause 1 seconde en bas (cuisses parallèles au sol). Remonte en 2 secondes.", tips: "Le lent est clé ici : ça active plus de fibres musculaires que le squat rapide." },
+  pompes: { title: "Pompes inclinées", emoji: "💪", desc: "Mains sur le bord du canapé ou sur les genoux si besoin. Corps droit, descends jusqu'à ce que la poitrine frôle l'appui. Expire en remontant.", tips: "Plus les mains sont hautes, plus c'est facile. Progression : canapé → chaise → sol." },
+  fentes: { title: "Fentes alternées", emoji: "🦵", desc: "Debout, pieds joints. Fais un grand pas en avant, descends le genou arrière vers le sol (sans toucher). Reviens à la position initiale, change de jambe.", tips: "Le genou avant ne dépasse pas les orteils. Garde le buste droit." },
+  dips: { title: "Dips sur chaise", emoji: "💪", desc: "Assis au bord d'une chaise, mains à côté des hanches. Avance les fesses hors de la chaise, jambes tendues. Descends en pliant les coudes à 90°, remonte.", tips: "Garde les épaules basses — pas de haussement. Coudes pointent en arrière." },
+  deadbug: { title: "Dead Bug", emoji: "🐛", desc: "Allongée sur le dos, bras tendus vers le plafond, jambes à 90°. Abaisse simultanément le bras droit et la jambe gauche sans décoller le dos. Reviens, change de côté.", tips: "Le bas du dos reste collé au sol en permanence — c'est l'objectif principal." },
+  superman: { title: "Superman", emoji: "🦸", desc: "Allongée ventre au sol, bras tendus devant toi. Soulève simultanément bras et jambes en contractant le bas du dos et les fessiers. Tiens 2 secondes.", tips: "Regarde vers le bas pour garder la nuque neutre. Evite de trop forcer la tête." },
+  corde: { title: "Corde à sauter", emoji: "🪢", desc: "Sauts légers sur la pointe des pieds, coudes près du corps, poignets qui font tourner la corde. Atterris doucement — pas de bruit = bonne technique.", tips: "Semaine 1-2 : 20s effort / 40s repos. S3-4 : 30s/30s. S5+ : 40s/20s." },
+  rollup: { title: "Roll Up", emoji: "🌀", desc: "Allongée sur le dos, bras tendus au-dessus de la tête. Inspire, puis expire en montant vertèbre par vertèbre, bras tendus vers les orteils. Redescends aussi lentement.", tips: "Si difficile au début, aide-toi avec les mains sous les genoux." },
+  singleleg: { title: "Single Leg Stretch", emoji: "🦵", desc: "Allongée, tête et épaules levées, une jambe tendue à 45°, l'autre fléchie. Main extérieure sur la cheville, main intérieure sur le genou. Alterne les jambes.", tips: "Garde le bas du dos en contact avec le sol. Expiration à chaque changement." },
+  bicycle: { title: "Bicycle Crunch", emoji: "🚲", desc: "Allongée, mains derrière la tête (sans tirer), jambes levées. Tourne le coude droit vers le genou gauche en étendant la jambe droite. Alterne.", tips: "Lenteur > vitesse. Si tu vas trop vite tu perds l'activation abdominale." },
+  etirements: { title: "Étirements de récupération", emoji: "🧘", desc: "Prends 5-10 minutes pour étirer les groupes musculaires travaillés. Maintenez chaque position 30-45 secondes sans douleur, en respirant calmement.", tips: "Jamais à froid. L'étirement après l'effort améliore la récupération et la souplesse." }
+};
+
+let doneDays = new Set();
+let openDay = null;
+let timerInterval = null;
+let timerRunning = false;
+let timerSeconds = 0;
+let timerPhase = 'work';
+let timerRound = 0;
+let currentWork = 30;
+let currentRest = 30;
+let currentRounds = 10;
+let currentTimerEl = null;
+
+function buildWeek() {
+  const grid = document.getElementById('weekGrid');
+  const prog = document.getElementById('weekProgress');
+  grid.innerHTML = '';
+  prog.innerHTML = '';
+  DAYS.forEach((day, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'week-dot' + (doneDays.has(i) ? ' done' : '');
+    dot.title = day.name;
+    prog.appendChild(dot);
+
+    const card = document.createElement('div');
+    card.className = 'day-card';
+    const intDot = `<span class="intensity-dot int-${day.intensity}" title="Intensité"></span>`;
+    card.innerHTML = `
+      <div class="day-header" onclick="toggleDay(${i}, event)">
+        ${intDot}
+        <span class="day-name">${day.name}</span>
+        <span class="day-type">${day.type} · ${day.duration}</span>
+        <div class="day-check ${doneDays.has(i) ? 'done' : ''}" onclick="toggleDone(${i}, event)" title="Marquer comme fait">
+          ${doneDays.has(i) ? '<i class="ti ti-check" aria-hidden="true"></i>' : ''}
+        </div>
+      </div>
+      <div class="day-body ${openDay === i ? 'open' : ''}" id="body-${i}">
+        <div class="exercise-list">${buildExList(day, i)}</div>
+        ${day.hasTimer ? buildTimer(i, day) : ''}
+      </div>`;
+    grid.appendChild(card);
+  });
+  updateProgressText();
+}
+
+function buildExList(day, di) {
+  return day.exercises.map((ex, ei) => `
+    <div class="exercise-item">
+      <div class="ex-check" id="excheck-${di}-${ei}" onclick="toggleEx(${di},${ei})"></div>
+      <div class="ex-info">
+        <div class="ex-name">${ex.name}</div>
+        <div class="ex-detail">${ex.detail}</div>
+        ${ex.demo ? `<span class="ex-demo" onclick="showDemo('${ex.demo}')">Voir comment faire</span>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function buildTimer(di, day) {
+  return `
+    <div class="timer-section" id="timer-${di}">
+      <div class="timer-label">Chronomètre circuit — ${day.timerWork}s effort / ${day.timerRest}s repos</div>
+      <div class="timer-display" id="tdisp-${di}">00:${String(day.timerWork).padStart(2,'0')}</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="tprog-${di}" style="width:100%"></div></div>
+      <div class="timer-phase" id="tphase-${di}"></div>
+      <div style="font-size:11px; color:var(--color-text-secondary); text-align:center; margin-top:4px;" id="tround-${di}">Prêt</div>
+      <div class="timer-controls" style="margin-top:10px;">
+        <button class="timer-btn primary" onclick="startTimer(${di},${day.timerWork},${day.timerRest},${day.timerRounds})">Démarrer</button>
+        <button class="timer-btn" onclick="stopTimer(${di})">Arrêter</button>
+        <button class="timer-btn" onclick="resetTimer(${di},${day.timerWork})">Reset</button>
+      </div>
+    </div>`;
+}
+
+function toggleDay(i, e) {
+  if (e.target.closest('.day-check') || e.target.closest('.ex-check') || e.target.closest('.ex-demo') || e.target.closest('.timer-btn')) return;
+  openDay = openDay === i ? null : i;
+  buildWeek();
+}
+
+function toggleDone(i, e) {
+  e.stopPropagation();
+  if (doneDays.has(i)) doneDays.delete(i); else doneDays.add(i);
+  buildWeek();
+}
+
+function toggleEx(di, ei) {
+  const el = document.getElementById(`excheck-${di}-${ei}`);
+  if (!el) return;
+  const done = el.classList.toggle('done');
+  el.innerHTML = done ? '<i class="ti ti-check" aria-hidden="true"></i>' : '';
+}
+
+function updateProgressText() {
+  const n = doneDays.size;
+  document.getElementById('weekProgressText').textContent = n === 0
+    ? 'Clique sur une journée pour voir les exercices'
+    : `${n}/7 journées complétées cette semaine`;
+}
+
+function startTimer(di, work, rest, rounds) {
+  stopTimer(di);
+  timerRunning = true;
+  timerPhase = 'work';
+  timerRound = 1;
+  timerSeconds = work;
+  currentWork = work; currentRest = rest; currentRounds = rounds;
+  currentTimerEl = di;
+  updateTimerUI();
+  timerInterval = setInterval(() => {
+    timerSeconds--;
+    if (timerSeconds <= 0) {
+      if (timerPhase === 'work') {
+        timerPhase = 'rest'; timerSeconds = rest;
+      } else {
+        timerRound++;
+        if (timerRound > rounds) { stopTimer(di); resetTimer(di, work); return; }
+        timerPhase = 'work'; timerSeconds = work;
+      }
+    }
+    updateTimerUI();
+  }, 1000);
+}
+
+function updateTimerUI() {
+  const di = currentTimerEl;
+  if (di === null) return;
+  const disp = document.getElementById(`tdisp-${di}`);
+  const phase = document.getElementById(`tphase-${di}`);
+  const rnd = document.getElementById(`tround-${di}`);
+  const prog = document.getElementById(`tprog-${di}`);
+  if (!disp) return;
+  const total = timerPhase === 'work' ? currentWork : currentRest;
+  const m = Math.floor(timerSeconds / 60);
+  const s = timerSeconds % 60;
+  disp.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  phase.textContent = timerPhase === 'work' ? 'EFFORT' : 'REPOS';
+  phase.className = `timer-phase ${timerPhase === 'work' ? 'phase-work' : 'phase-rest'}`;
+  rnd.textContent = `Round ${timerRound} / ${currentRounds}`;
+  const pct = Math.round((timerSeconds / total) * 100);
+  if (prog) prog.style.width = pct + '%';
+}
+
+function stopTimer(di) {
+  clearInterval(timerInterval);
+  timerRunning = false;
+}
+
+function resetTimer(di, work) {
+  stopTimer(di);
+  const disp = document.getElementById(`tdisp-${di}`);
+  const phase = document.getElementById(`tphase-${di}`);
+  const rnd = document.getElementById(`tround-${di}`);
+  const prog = document.getElementById(`tprog-${di}`);
+  if (disp) disp.textContent = `00:${String(work).padStart(2,'0')}`;
+  if (phase) { phase.textContent = ''; phase.className = 'timer-phase'; }
+  if (rnd) rnd.textContent = 'Prêt';
+  if (prog) prog.style.width = '100%';
+}
+
+function showDemo(key) {
+  const d = DEMOS[key];
+  if (!d) return;
+  document.getElementById('modalTitle').textContent = d.title;
+  document.getElementById('modalDesc').textContent = d.desc;
+  document.getElementById('modalTips').textContent = '💡 ' + d.tips;
+  const box = document.getElementById('animBox');
+  box.innerHTML = `<span class="stick-figure" id="demoEmoji">${d.emoji}</span>`;
+  document.getElementById('modal').classList.add('open');
+  let toggle = false;
+  if (box._anim) clearInterval(box._anim);
+  box._anim = setInterval(() => {
+    const el = document.getElementById('demoEmoji');
+    if (el) { toggle = !toggle; el.style.transform = toggle ? 'scale(1.2) rotate(-5deg)' : 'scale(1) rotate(5deg)'; }
+  }, 600);
+}
+
+function closeModal(e) {
+  if (e.target.id === 'modal') {
+    const box = document.getElementById('animBox');
+    if (box._anim) clearInterval(box._anim);
+    document.getElementById('modal').classList.remove('open');
+  }
+}
+
+function buildMeals() {
+  const tagColors = { P: ['tag-p','P'], G: ['tag-g','G'], L: ['tag-l','L'] };
+  const grid = document.getElementById('mealGrid');
+  grid.innerHTML = MEALS.map(m => `
+    <div class="meal-card">
+      <div class="meal-title">
+        <i class="ti ${m.icon}" aria-hidden="true"></i>
+        ${m.title} <span class="meal-time">${m.time}</span>
+      </div>
+      <div class="meal-options">
+        ${m.options.map(o => `
+          <div class="meal-option">
+            <strong>${o.label}</strong><br>${o.text}
+            <div style="margin-top:4px;">${o.tags.map(t => `<span class="macro-tag ${tagColors[t][0]}">${tagColors[t][1] === 'P' ? 'Protéines' : tagColors[t][1] === 'G' ? 'Glucides' : 'Lipides'}</span>`).join('')}</div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function buildFoodGrid(id, items, color) {
+  const cats = { protein: ['tag-p', 'Protéines'], carb: ['tag-g', 'Glucides'], fat: ['tag-l', 'Lipides'] };
+  document.getElementById(id).innerHTML = items.map(f => `
+    <div class="food-item">
+      <div class="food-item-name">${f.name}</div>
+      <div class="food-item-qty" style="font-size:11px; color:var(--color-text-secondary); margin-bottom:4px;">${f.qty}</div>
+      <div style="font-size:10px; color:var(--color-text-secondary);">${f.note}</div>
+    </div>`).join('');
+}
+
+function showTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+buildWeek();
+buildMeals();
+buildFoodGrid('proteinGrid', PROTEINS);
+buildFoodGrid('carbGrid', CARBS);
+buildFoodGrid('fatGrid', FATS);
+</script>
