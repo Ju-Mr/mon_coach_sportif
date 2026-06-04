@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Mon Coach Bien-être</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --green:#1D9E75;--green-light:#E1F5EE;--green-dark:#085041;
+  --amber:#BA7517;--amber-light:#FAEEDA;
+  --pink:#993556;--pink-light:#FBEAF0;
+  --blue:#185FA5;--blue-light:#E6F1FB;
+  --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0f0ec;
+  --text:#1a1a1a;--text2:#6b6b6b;--text3:#999;
+  --border:rgba(0,0,0,0.1);--border2:rgba(0,0,0,0.18);
+  --radius:10px;--radius-lg:14px;
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#1a1a1a;--bg2:#242424;--bg3:#2e2e2e;--text:#f0f0f0;--text2:#aaa;--text3:#666;--border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.2)}
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:15px;max-width:480px;margin:0 auto;min-height:100vh}
+
+.nav{display:flex;border-bottom:0.5px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:50}
+.nav-btn{flex:1;padding:12px 4px 10px;border:none;background:transparent;cursor:pointer;font-size:11px;color:var(--text2);display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent;transition:all .15s;font-family:inherit}
+.nav-btn i{font-size:22px}
+.nav-btn.on{color:var(--green);border-bottom-color:var(--green);font-weight:600}
+
+.page{display:none;padding:16px 14px 80px}
+.page.on{display:block}
+
+.page-header{margin-bottom:18px}
+.page-header h2{font-size:22px;font-weight:700;margin-bottom:2px}
+.page-header p{font-size:13px;color:var(--text2)}
+
+/* WEEK DOTS */
+.week-strip{display:flex;gap:5px;margin-bottom:14px;align-items:center}
+.wd{flex:1;height:5px;border-radius:3px;background:var(--bg3);transition:background .3s}
+.wd.done{background:var(--green)}
+.week-label{font-size:12px;color:var(--text2);white-space:nowrap;margin-left:4px}
+
+/* DAY CARDS */
+.day-card{border:0.5px solid var(--border);border-radius:var(--radius-lg);margin-bottom:10px;overflow:hidden;background:var(--bg)}
+.day-head{display:flex;align-items:center;gap:10px;padding:14px 14px;cursor:pointer;user-select:none}
+.day-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot-g{background:var(--green)}.dot-a{background:#EF9F27}.dot-b{background:var(--blue)}
+.day-info{flex:1;min-width:0}
+.day-name{font-size:15px;font-weight:600}
+.day-meta{font-size:12px;color:var(--text2);margin-top:1px}
+.day-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.check-circle{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:#fff;transition:all .2s;flex-shrink:0}
+.check-circle.done{background:var(--green);border-color:var(--green)}
+.caret{font-size:18px;color:var(--text3);transition:transform .2s}
+.caret.open{transform:rotate(180deg)}
+
+.day-body{display:none;border-top:0.5px solid var(--border)}
+.day-body.open{display:block}
+
+/* EXERCISES */
+.ex-list{padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.ex-row{display:flex;align-items:flex-start;gap:10px;padding:11px 12px;background:var(--bg2);border-radius:var(--radius)}
+.ex-chk{width:22px;height:22px;border-radius:6px;border:1.5px solid var(--border2);flex-shrink:0;margin-top:1px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;transition:all .15s}
+.ex-chk.done{background:var(--green);border-color:var(--green)}
+.ex-info{flex:1;min-width:0}
+.ex-name{font-size:13px;font-weight:600}
+.ex-detail{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.4}
+.ex-demo-btn{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--blue);margin-top:5px;cursor:pointer;border:none;background:none;padding:0;font-family:inherit}
+
+/* TIMER */
+.timer-wrap{margin:2px 14px 14px;background:var(--bg2);border-radius:var(--radius-lg);overflow:hidden}
+.timer-top{padding:14px 14px 10px}
+.timer-label-top{font-size:11px;color:var(--text2);text-align:center;margin-bottom:10px}
+.timer-big{font-size:52px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:2px;line-height:1;margin-bottom:6px}
+.timer-phase-lbl{font-size:14px;font-weight:700;text-align:center;height:20px;letter-spacing:1px;transition:color .3s}
+.phase-work{color:#E24B4A}.phase-rest{color:var(--green)}.phase-ready{color:var(--text3)}
+.prog-bar{height:5px;background:var(--border);margin:10px 0}
+.prog-fill{height:100%;background:var(--green);transition:width .9s linear}
+.timer-info-row{display:flex;justify-content:space-between;align-items:center;padding:0 2px;margin-bottom:10px}
+.timer-round-info{font-size:12px;color:var(--text2)}
+.timer-btns{display:flex;gap:8px;margin-bottom:2px}
+.tbtn{flex:1;padding:11px 8px;border:0.5px solid var(--border2);border-radius:var(--radius);background:transparent;cursor:pointer;font-size:13px;font-weight:600;color:var(--text);font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px}
+.tbtn.primary{background:var(--green);color:#fff;border-color:var(--green)}
+
+/* ROUND CHECKLIST */
+.round-list{border-top:0.5px solid var(--border);padding:12px 14px}
+.round-list-title{font-size:11px;color:var(--text2);margin-bottom:8px;font-weight:600;letter-spacing:.3px}
+.rounds-grid{display:flex;flex-wrap:wrap;gap:6px}
+.round-dot{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .2s}
+.round-dot.done{background:var(--green);border-color:var(--green);color:#fff}
+.round-dot.current{border-color:var(--green);color:var(--green)}
+
+/* NUTRITION */
+.macro-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:18px}
+.macro-card{background:var(--bg2);border-radius:var(--radius);padding:13px 14px;text-align:center}
+.macro-card.wide{grid-column:1/-1}
+.macro-lbl{font-size:10px;color:var(--text2);letter-spacing:.5px;margin-bottom:5px;text-transform:uppercase}
+.macro-val{font-size:24px;font-weight:700}
+.macro-sub{font-size:10px;color:var(--text2);margin-top:2px}
+
+.section-title{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:.3px;margin:18px 0 10px;text-transform:uppercase}
+
+.recipe-card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);margin-bottom:10px;overflow:hidden}
+.recipe-head{display:flex;align-items:center;gap:12px;padding:14px;cursor:pointer}
+.recipe-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.recipe-info{flex:1;min-width:0}
+.recipe-name{font-size:14px;font-weight:600}
+.recipe-sub{font-size:12px;color:var(--text2);margin-top:1px}
+.recipe-body{display:none;border-top:0.5px solid var(--border);padding:14px}
+.recipe-body.open{display:block}
+.recipe-ing{margin-bottom:10px}
+.recipe-ing-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px}
+.ing-list{display:flex;flex-wrap:wrap;gap:5px}
+.ing-tag{font-size:12px;padding:4px 9px;background:var(--bg2);border-radius:20px;color:var(--text)}
+.recipe-steps{font-size:13px;color:var(--text2);line-height:1.7}
+.recipe-steps strong{color:var(--text)}
+.tag-row{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap}
+.tag{font-size:10px;padding:3px 8px;border-radius:10px;font-weight:600}
+.tag-p{background:var(--green-light);color:var(--green-dark)}
+.tag-g{background:var(--amber-light);color:var(--amber)}
+.tag-l{background:var(--pink-light);color:var(--pink)}
+.tag-gf{background:var(--bg3);color:var(--text2)}
+
+/* GUIDE */
+.guide-section{margin-bottom:22px}
+.guide-h{font-size:14px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:7px;padding-bottom:8px;border-bottom:0.5px solid var(--border)}
+.food-grid{display:flex;flex-direction:column;gap:7px}
+.food-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border-radius:var(--radius)}
+.food-emoji{font-size:22px;flex-shrink:0;width:32px;text-align:center}
+.food-info{flex:1;min-width:0}
+.food-name{font-size:13px;font-weight:600}
+.food-qty{font-size:12px;color:var(--text2);margin-top:1px}
+.food-note{font-size:11px;color:var(--text3);margin-top:1px}
+
+.tip-card{border-left:3px solid var(--green);padding:10px 13px;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:8px;font-size:13px;line-height:1.6;color:var(--text2);background:var(--bg2)}
+.tip-card strong{color:var(--text)}
+
+/* MODAL POPUP */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:flex-end;justify-content:center;padding:0}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--bg);border-radius:20px 20px 0 0;padding:20px 18px 36px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto}
+.modal-drag{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:14px}
+.anim-stage{width:100%;height:200px;background:var(--bg2);border-radius:var(--radius-lg);margin-bottom:14px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.modal-desc{font-size:14px;line-height:1.7;color:var(--text2);margin-bottom:10px}
+.modal-tip{font-size:12px;line-height:1.6;color:var(--text2);padding:10px 12px;background:var(--green-light);border-radius:var(--radius);color:var(--green-dark);margin-bottom:16px}
+.modal-close-btn{width:100%;padding:13px;border:none;background:var(--bg2);border-radius:var(--radius);cursor:pointer;font-size:15px;font-weight:600;color:var(--text);font-family:inherit}
+
+/* SVG ANIMATIONS */
+.stick{stroke:var(--green);stroke-width:2.5;stroke-linecap:round;fill:none}
+.stick-fill{fill:var(--green);stroke:none}
+svg.anim-svg{width:100%;height:100%}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <button class="nav-btn on" onclick="goTab('sport',this)"><i class="ti ti-calendar-week"></i>Programme</button>
+  <button class="nav-btn" onclick="goTab('nutrition',this)"><i class="ti ti-bowl-spoon"></i>Nutrition</button>
+  <button class="nav-btn" onclick="goTab('guide',this)"><i class="ti ti-book-2"></i>Guide</button>
+</div>
+
+<div id="page-sport" class="page on">
+  <div class="page-header"><h2>Ma semaine</h2><p id="prog-txt">Coche tes séances au fil des jours</p></div>
+  <div class="week-strip"><div class="week-dots" id="wdots" style="display:flex;gap:5px;flex:1"></div><span class="week-label" id="week-count">0/7</span></div>
+  <div id="day-list"></div>
+</div>
+
+<div id="page-nutrition" class="page">
+  <div class="page-header"><h2>Nutrition</h2><p>Objectifs et idées repas pour chaque moment</p></div>
+  <div class="macro-grid">
+    <div class="macro-card"><div class="macro-lbl">Protéines</div><div class="macro-val" style="color:var(--green)">100g</div><div class="macro-sub">/ jour</div></div>
+    <div class="macro-card"><div class="macro-lbl">Glucides</div><div class="macro-val" style="color:var(--amber)">170g</div><div class="macro-sub">complexes / jour</div></div>
+    <div class="macro-card"><div class="macro-lbl">Lipides</div><div class="macro-val" style="color:var(--pink)">60g</div><div class="macro-sub">bons gras / jour</div></div>
+    <div class="macro-card"><div class="macro-lbl">Calories</div><div class="macro-val">1700</div><div class="macro-sub">kcal estimées / jour</div></div>
+  </div>
+
+  <div class="section-title">Petit-déjeuner</div>
+  <div id="recipes-breakfast"></div>
+  <div class="section-title">Déjeuner</div>
+  <div id="recipes-lunch"></div>
+  <div class="section-title">Dîner</div>
+  <div id="recipes-dinner"></div>
+  <div class="section-title">Collation post-sport</div>
+  <div id="recipes-snack"></div>
+</div>
+
+<div id="page-guide" class="page">
+  <div class="page-header"><h2>Guide aliments</h2><p>Tout ce qu'il faut avoir dans son frigo</p></div>
+  <div id="guide-content"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="maybeClose(event)">
+  <div class="modal-box" id="modal-box">
+    <div class="modal-drag"></div>
+    <div class="modal-title" id="m-title"></div>
+    <div class="anim-stage" id="m-anim"></div>
+    <div class="modal-desc" id="m-desc"></div>
+    <div class="modal-tip" id="m-tip"></div>
+    <button class="modal-close-btn" onclick="closeModal()">Fermer</button>
+  </div>
+</div>
+
+<script>
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+function beep(freq=880, dur=0.15, vol=0.3){
+  try{
+    const ctx=new AudioCtx();
+    const o=ctx.createOscillator();
+    const g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);
+    o.frequency.value=freq;
+    g.gain.setValueAtTime(vol,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+dur);
+    o.start(ctx.currentTime);o.stop(ctx.currentTime+dur);
+  }catch(e){}
+}
+
+const DAYS=[
+  {name:"Lundi",type:"Pilates fondamental",dur:"20 min",dot:"g",hasTmr:true,tw:45,tr:15,trd:5,
+   ex:[
+    {n:"Respiration diaphragmatique",d:"2 min · allongée · anti-cortisol immédiat",demo:"respiration"},
+    {n:"Hundred pilates",d:"100 battements · jambes à 45°",demo:"hundred"},
+    {n:"Glute bridge",d:"3 × 15 · tenu 3s en haut · lest si besoin",demo:"glutebridge"},
+    {n:"Abductions latérales",d:"12 reps chaque côté · lest cheville",demo:"sidelegs"},
+    {n:"Planche sur coudes",d:"3 × 20 secondes",demo:"planche"},
+    {n:"Child's pose",d:"2 min · récupération",demo:"childpose"}
+  ]},
+  {name:"Mardi",type:"Padel",dur:"Session complète",dot:"b",hasTmr:false,
+   ex:[
+    {n:"Match de padel",d:"Cardio naturel — compte comme séance cardio complète",demo:null},
+    {n:"Étirements après match",d:"5 min · mollets, hanches, épaules",demo:"stretch"}
+  ]},
+  {name:"Mercredi",type:"Callisthénie",dur:"20 min · 3 tours",dot:"a",hasTmr:true,tw:40,tr:20,trd:6,
+   ex:[
+    {n:"Squat lent",d:"3s descente · 1s pause bas · 2s montée",demo:"squat"},
+    {n:"Pompes inclinées",d:"Sur canapé ou sur genoux",demo:"pompes"},
+    {n:"Fentes alternées",d:"10 chaque jambe",demo:"fentes"},
+    {n:"Dips sur chaise",d:"Triceps · 12 reps",demo:"dips"},
+    {n:"Dead bug",d:"10 reps · dos plat au sol",demo:"deadbug"},
+    {n:"Superman",d:"12 reps · allongée ventre",demo:"superman"}
+  ]},
+  {name:"Jeudi",type:"Padel",dur:"Session complète",dot:"b",hasTmr:false,
+   ex:[
+    {n:"Match de padel",d:"Cardio naturel — compte comme séance cardio complète",demo:null},
+    {n:"Étirements après match",d:"5 min · mollets, hanches, épaules",demo:"stretch"}
+  ]},
+  {name:"Vendredi",type:"Corde à sauter",dur:"15 min · intervalles doux",dot:"a",hasTmr:true,tw:30,tr:30,trd:10,
+   ex:[
+    {n:"Échauffement",d:"3 min · marche + rotations épaules",demo:null},
+    {n:"Corde à sauter",d:"30s effort / 30s marche · 10 rounds",demo:"corde"},
+    {n:"Étirements mollets",d:"2 min · chevilles incluses",demo:"stretch"}
+  ]},
+  {name:"Samedi",type:"Pilates long",dur:"30 min",dot:"g",hasTmr:true,tw:45,tr:15,trd:8,
+   ex:[
+    {n:"Roll up",d:"8 reps · vertèbre par vertèbre",demo:"rollup"},
+    {n:"Single leg stretch",d:"10 chaque jambe",demo:"singleleg"},
+    {n:"Glute bridge pulsé",d:"20 pulsations",demo:"glutebridge"},
+    {n:"Bicycle crunch",d:"20 reps · lent et contrôlé",demo:"bicycle"},
+    {n:"Planche latérale",d:"30s chaque côté",demo:"planche"}
+  ]},
+  {name:"Dimanche",type:"Récupération",dur:"10 min",dot:"g",hasTmr:false,
+   ex:[
+    {n:"Étirements globaux",d:"10 min · tout le corps",demo:"stretch"},
+    {n:"Batch cooking",d:"Overnight oats + riz + 6 œufs durs en 20 min",demo:null}
+  ]}
+];
+
+const RECIPES={
+  breakfast:[
+    {name:"Overnight oats banane-cacahuète",sub:"Préparé la veille · 0 min le matin",icon:"🥣",bg:"#FAEEDA",
+     ing:["50g flocons avoine GF","150ml lait d'amande","1 banane","1 c.s. beurre cacahuète","1 c.c. miel","Cannelle"],
+     steps:"La veille, mélange les flocons avec le lait dans un bocal. Écrase la banane dessus, ajoute le beurre de cacahuète et le miel. Ferme et mets au frigo. Le matin : ouvre, mange, c'est tout.",
+     tags:["G","P","L","GF"]},
+    {name:"Skyr & fruits frais",sub:"2 minutes chrono",icon:"🫙",bg:"#E1F5EE",
+     ing:["150g skyr nature","Fruits de saison","2-3 noix du Brésil","1 c.c. miel"],
+     steps:"Verse le skyr dans un bol, dépose les fruits coupés, ajoute les noix et un filet de miel. Aucune préparation.",
+     tags:["P","L","GF"]},
+    {name:"Œufs brouillés & pain sarrasin",sub:"5 minutes · sans gluten",icon:"🍳",bg:"#E6F1FB",
+     ing:["2-3 œufs","1 tranche pain sarrasin","1 c.c. beurre","Sel, herbes"],
+     steps:"Fais fondre le beurre à feu doux. Bats les œufs, verse dans la poêle. Remue doucement jusqu'à consistance crémeuse. Grille le pain sarrasin. Sers avec quelques herbes fraîches.",
+     tags:["P","L","GF"]}
+  ],
+  lunch:[
+    {name:"Bowl saumon avocat",sub:"10 min · ultra-frais",icon:"🐟",bg:"#E1F5EE",
+     ing:["120g saumon fumé ou cru poêlé","80g riz basmati cuit","½ avocat","Concombre","Sauce soja + citron","Sésame"],
+     steps:"Si saumon cru : poêle 3 min chaque côté avec un filet d'huile d'olive et sel. Dispose le riz dans un bol, ajoute le saumon, l'avocat en tranches, le concombre. Arrose de sauce citron-soja et saupoudre de sésame.",
+     tags:["P","G","L","GF"]},
+    {name:"Poulet rôti & patate douce",sub:"Parfait batch cooking",icon:"🍗",bg:"#FAEEDA",
+     ing:["150g blanc de poulet","200g patate douce","Paprika, ail","Huile d'olive","Légumes de saison"],
+     steps:"Précoupe la patate douce en cubes, enfourne à 200°C 25 min. Poêle le poulet 6 min chaque côté avec paprika et ail. Si batch : prépare 3 blancs et 600g de patate d'un coup pour 3 jours.",
+     tags:["P","G","L","GF"]},
+    {name:"Salade niçoise revisitée",sub:"Zéro cuisson · tout en boîte",icon:"🥗",bg:"#E6F1FB",
+     ing:["1 boîte thon","2 œufs durs","Tomates cerises","Haricots verts","Olives","Vinaigrette citron-olive"],
+     steps:"Dispose tous les ingrédients dans un grand bol. Les œufs durs peuvent être cuits d'avance (batch du dimanche). Assaisonne avec huile d'olive, citron, sel. Prêt en 3 minutes.",
+     tags:["P","L","GF"]},
+    {name:"Wrap laitue poulet",sub:"Pour lui : tortilla · pour toi : feuilles",icon:"🥬",bg:"#EAF3DE",
+     ing:["150g poulet cuit","4 grandes feuilles de laitue iceberg","Avocat","Tomate","Fromage frais","Sauce yaourt-citron"],
+     steps:"Lui prend une tortilla de blé, toi des feuilles de laitue comme wrap naturel. Même garniture pour tout le monde : poulet effiloché, avocat, tomate, fromage frais. Sauce yaourt-citron-herbes.",
+     tags:["P","L","GF"]}
+  ],
+  dinner:[
+    {name:"Steak & légumes rôtis",sub:"Pour deux · 20 min · sans gluten naturel",icon:"🥩",bg:"#FAECE7",
+     ing:["2 steaks (150g chacun)","Courgettes, poivrons, champignons","Ail, thym","Huile d'olive","Fleur de sel"],
+     steps:"Enfourne les légumes en cubes à 210°C pendant 20 min. En parallèle, sors les steaks du frigo 10 min avant. Poêle à feu vif 2-3 min par côté. Repose 3 min sous alu. Même assiette pour vous deux — 100% sans gluten.",
+     tags:["P","L","GF"]},
+    {name:"Pavé de saumon & riz",sub:"Dîner léger & complet",icon:"🍣",bg:"#E1F5EE",
+     ing:["2 pavés de saumon","200g riz basmati (cuit d'avance)","Épinards ou brocolis","Sauce soja + gingembre"],
+     steps:"Poêle les pavés côté peau 4 min, retourne 2 min. Le riz est déjà cuit (batch cooking). Fais sauter les épinards 2 min à l'ail. Sauce : soja + gingembre râpé + un peu de miel.",
+     tags:["P","G","L","GF"]},
+    {name:"Poulet mariné & quinoa",sub:"Même plat pour toute la famille",icon:"🍲",bg:"#EEEDFE",
+     ing:["2 cuisses ou blancs de poulet","150g quinoa","Citron, ail, paprika","Poivrons, courgettes","Herbes fraîches"],
+     steps:"Marine le poulet 30 min (citron + ail + paprika + huile). Cuis le quinoa 12 min à couvert. Poêle ou enfourne le poulet 20 min à 180°C. Fais sauter les légumes 5 min. Un repas qui plaît à tout le monde.",
+     tags:["P","G","L","GF"]},
+    {name:"Omelette campagnarde",sub:"Dîner express 8 minutes",icon:"🍳",bg:"#F1EFE8",
+     ing:["3 œufs","Champignons","Épinards","Feta ou fromage de chèvre","Ail, herbes de Provence"],
+     steps:"Fais revenir les champignons et l'épinards à l'ail 3 min. Bats les œufs avec les herbes. Verse dans la poêle, ajoute la garniture, émiette le fromage. Plie en deux quand le dessus est encore légèrement coulant.",
+     tags:["P","L","GF"]},
+    {name:"Bœuf sauté nouilles de riz",sub:"Wok express · version GF du plat asiatique",icon:"🥢",bg:"#FCEBEB",
+     ing:["150g bœuf émincé (rumsteak)","100g nouilles de riz","Brocolis, carottes, oignons","Sauce soja, gingembre, ail","Huile de sésame"],
+     steps:"Fais tremper les nouilles de riz 5 min dans l'eau chaude. Saisis le bœuf à feu très vif 2 min. Ajoute les légumes, fais sauter 3 min. Ajoute les nouilles égouttées, sauce soja + gingembre + ail. Mélange et sers.",
+     tags:["P","G","GF"]}
+  ],
+  snack:[
+    {name:"Skyr & banane",sub:"Récupération musculaire idéale",icon:"🍌",bg:"#E1F5EE",
+     ing:["150g skyr","1 banane","1 c.c. miel optionnel"],
+     steps:"Coupe la banane sur le skyr. Mange dans les 30 minutes après l'effort pour optimiser la récupération.",
+     tags:["P","G","GF"]},
+    {name:"Amandes & chocolat noir",sub:"Si pas très faim",icon:"🍫",bg:"#FAEEDA",
+     ing:["25g amandes","2 carrés chocolat noir 70%"],
+     steps:"Une petite poignée d'amandes et 2 carrés de chocolat. Rapide, rassasiant, et le magnésium du chocolat noir aide à la récupération.",
+     tags:["L","GF"]}
+  ]
+};
+
+const GUIDE_DATA=[
+  {title:"Protéines — raffermir & satiété",color:"var(--green)",icon:"ti-meat",
+   items:[
+    {e:"🥚",n:"Œufs entiers",q:"2-3 par repas",note:"Sélénium pour la thyroïde · protéines complètes"},
+    {e:"🍗",n:"Blanc de poulet",q:"120-150g",note:"Maigre · cuire en batch x3 d'un coup"},
+    {e:"🦃",n:"Escalope de dinde",q:"120-150g",note:"Encore plus maigre que le poulet"},
+    {e:"🥩",n:"Bœuf (rumsteak, filet)",q:"120-150g",note:"Fer biodisponible · à préférer au soir"},
+    {e:"🐟",n:"Saumon frais",q:"120-130g",note:"Oméga-3 puissants anti-cortisol"},
+    {e:"🐠",n:"Thon en boîte",q:"1 boîte 120g",note:"Express · toujours en stock"},
+    {e:"🦐",n:"Crevettes",q:"150g",note:"Très maigres · cuisson 3 min"},
+    {e:"🫙",n:"Skyr / yaourt grec",q:"150-200g",note:"Probiotiques + protéines · parfait matin"},
+    {e:"🧀",n:"Fromage blanc 0%",q:"200g",note:"Satiété · collation ou dessert"},
+    {e:"🫘",n:"Pois chiches",q:"150g cuits",note:"Fibres + protéines végé · boîte = déjà prêt"},
+    {e:"🌱",n:"Lentilles corail",q:"100g secs",note:"Cuisson 10 min · base de soupe rapide"},
+    {e:"🫘",n:"Edamame",q:"100g",note:"Snack protéiné · rayon surgelés"}
+  ]},
+  {title:"Glucides complexes — énergie durable",color:"var(--amber)",icon:"ti-grain",
+   items:[
+    {e:"🍚",n:"Riz basmati",q:"60g secs → 180g cuit",note:"Indice glycémique modéré · batch cooking"},
+    {e:"🌾",n:"Quinoa",q:"60g secs",note:"Contient les 9 acides aminés essentiels"},
+    {e:"🍠",n:"Patate douce",q:"150-200g",note:"Anti-cortisol · potassium · délicieuse rôtie"},
+    {e:"🥣",n:"Flocons d'avoine GF",q:"50-60g",note:"Petit-déj parfait · satiété longue durée"},
+    {e:"🍝",n:"Pâtes de lentilles",q:"75g secs",note:"Même cuisson que les pâtes normales · 2× plus de protéines"},
+    {e:"🌰",n:"Sarrasin (kasha)",q:"60g secs",note:"Sans gluten naturel · goût noisette"},
+    {e:"🫔",n:"Galettes de riz",q:"2-3 galettes",note:"Snack ou en-cas · attention aux additifs"},
+    {e:"🍌",n:"Banane",q:"1 moyenne",note:"Potassium · énergie rapide post-sport"},
+    {e:"🫐",n:"Fruits rouges",q:"100-150g",note:"Antioxydants · index glycémique bas"},
+    {e:"🥕",n:"Légumes racines",q:"150-200g",note:"Carotte, betterave, panais · glucides lents"},
+    {e:"🥜",n:"Légumineuses (général)",q:"150g cuites",note:"Fibres + glucides lents + protéines"},
+    {e:"🫙",n:"Houmous",q:"3-4 c.s.",note:"Pois chiches mixés · trempette légumes"}
+  ]},
+  {title:"Bons lipides — hormones & éclat",color:"var(--pink)",icon:"ti-droplet",
+   items:[
+    {e:"🥑",n:"Avocat",q:"½ par jour",note:"Anti-inflammatoire · bonnes graisses mono"},
+    {e:"🫒",n:"Huile d'olive vierge extra",q:"1-2 c.s.",note:"Cuisson douce ou assaisonnement · quotidien"},
+    {e:"🌰",n:"Noix du Brésil",q:"2-3 max / jour",note:"Sélénium · meilleure source naturelle pour la thyroïde"},
+    {e:"🥜",n:"Amandes",q:"25g (1 petite poignée)",note:"Magnésium + vitamine E + satiété"},
+    {e:"🐟",n:"Poissons gras",q:"2-3x / semaine",note:"Saumon, maquereau, sardines · oméga-3"},
+    {e:"🧈",n:"Beurre de cacahuète",q:"1 c.s.",note:"Sans sucre ajouté · énergie + satiété"},
+    {e:"🫙",n:"Tahini (purée sésame)",q:"1-2 c.c.",note:"Calcium + lipides · dans les sauces"},
+    {e:"🍫",n:"Chocolat noir 70%+",q:"2 carrés",note:"Magnésium + antioxydants + plaisir"},
+    {e:"🧀",n:"Fromage (avec modération)",q:"30-40g",note:"Chèvre, feta, parmesan · calcium + lipides"},
+    {e:"🥚",n:"Jaune d'œuf",q:"Inclus dans les œufs",note:"Vitamines liposolubles A D E K"}
+  ]},
+  {title:"Légumes à volonté — fibres & micronutriments",color:"#3B6D11",icon:"ti-leaf",
+   items:[
+    {e:"🥦",n:"Brocoli",q:"À volonté",note:"Détox · fibres · vitamine C · rôti ou vapeur"},
+    {e:"🧅",n:"Épinards",q:"À volonté",note:"Fer + magnésium · dans tout sans se voir"},
+    {e:"🥒",n:"Concombre",q:"À volonté",note:"Hydratation · zéro calorie · croquant"},
+    {e:"🫑",n:"Poivrons",q:"À volonté",note:"Vitamine C × 3 fois le citron · rôtis excellents"},
+    {e:"🍄",n:"Champignons",q:"À volonté",note:"Umami naturel · vitamine D · poêle rapide"},
+    {e:"🥬",n:"Courgette",q:"À volonté",note:"Légère · en spirales = alternative aux pâtes"},
+    {e:"🥗",n:"Roquette / mâche",q:"À volonté",note:"Apport en fer · salade base de tout"},
+    {e:"🍅",n:"Tomates cerises",q:"À volonté",note:"Lycopène antioxydant · snack naturel"},
+    {e:"🧄",n:"Ail",q:"1-2 gousses",note:"Antibactérien · booste le système immunitaire"},
+    {e:"🫚",n:"Oignons",q:"À volonté",note:"Prébiotiques · base de tous les plats"}
+  ]},
+  {title:"Conseils prioritaires pour ton profil",color:"var(--green)",icon:"ti-heart-rate-monitor",
+   items:[
+    {e:"🌰",n:"Noix du Brésil",q:"2-3 / jour max",note:"Sélénium — essentiel pour ta thyroïde — ne pas dépasser"},
+    {e:"💊",n:"Magnésium bisglycinate",q:"300mg le soir",note:"Améliore le sommeil et réduit le cortisol · en pharmacie sans ordonnance"},
+    {e:"☕",n:"Café",q:"Max 2 / jour avant 14h",note:"Au-delà : aggrave le cortisol et perturbe le sommeil"},
+    {e:"💧",n:"Eau",q:"1,5L min · 2L les jours sport",note:"Herbes infusées ou citron pour varier"},
+    {e:"🌾",n:"Gluten",q:"Réduire sans stresser",note:"Priorité : remplacer les pâtes classiques par pâtes lentilles · garder le même repas que ton conjoint"}
+  ]}
+];
+
+const DEMOS={
+  respiration:{title:"Respiration diaphragmatique",
+    svg:`<svg class="anim-svg" viewBox="0 0 200 200"><ellipse id="r-belly" cx="100" cy="130" rx="40" ry="25" class="stick-fill" opacity=".2"/><circle cx="100" cy="55" r="18" class="stick"/><line x1="100" y1="73" x2="100" y2="130" class="stick"/><line x1="100" y1="90" x2="70" y2="115" class="stick"/><line x1="100" y1="90" x2="130" y2="115" class="stick"/><line x1="100" y1="130" x2="80" y2="170" class="stick"/><line x1="100" y1="130" x2="120" y2="170" class="stick"/></svg>`,
+    anim:()=>{let t=0,el=document.getElementById('r-belly');if(!el)return;return setInterval(()=>{t+=0.05;const s=1+Math.sin(t)*0.35;el.setAttribute('ry',25*s);el.setAttribute('rx',40*(1+(s-1)*0.3));},50)},
+    desc:"Allonge-toi sur le dos, genoux fléchis. Une main sur le ventre, l'autre sur la poitrine. Inspire 4 secondes par le nez — seul le ventre monte (pas la poitrine). Expire lentement 6 secondes par la bouche.",
+    tip:"Active directement le système parasympathique — réduction du cortisol immédiate et mesurable."
+  },
+  glutebridge:{title:"Glute Bridge",
+    svg:`<svg class="anim-svg" viewBox="0 0 200 200"><g id="gb-g"><line id="gb-body" x1="50" y1="140" x2="150" y2="100" class="stick"/><line x1="50" y1="140" x2="30" y2="160" class="stick"/><line x1="50" y1="140" x2="70" y2="160" class="stick"/><line id="gb-leg1" x1="150" y1="100" x2="150" y2="160" class="stick"/><line id="gb-leg2" x1="150" y1="100" x2="130" y2="160" class="stick"/><circle cx="55" cy="125" r="14" class="stick"/><ellipse cx="140" cy="162" rx="20" ry="6" class="stick-fill" opacity=".15"/></g></svg>`,
+    anim:()=>{let t=0,up=true,h=0;return setInterval(()=>{h=up?(h<30?h+2:h):(h>0?h-2:h);if(h>=30)up=false;if(h<=0)up=true;const y=140-h;const bodyEl=document.getElementById('gb-body');if(bodyEl)bodyEl.setAttribute('y1',y);},40)},
+    desc:"Allongée sur le dos, pieds à plat au sol à la largeur des hanches. Appuie dans les talons, contracte les fessiers et soulève le bassin. Tiens 3 secondes en haut, descends lentement sans toucher le sol.",
+    tip:"Pousse dans les talons, pas les orteils. Pour intensifier : lest sur le bassin ou lest cheville tendu."
+  },
+  squat:{title:"Squat lent",
+    svg:`<svg class="anim-svg" viewBox="0 0 200 200"><circle id="sq-head" cx="100" cy="50" r="16" class="stick"/><line id="sq-body" x1="100" y1="66" x2="100" y2="120" class="stick"/><line x1="100" y1="80" x2="75" y2="100" class="stick"/><line x1="100" y1="80" x2="125" y2="100" class="stick"/><line id="sq-ll" x1="100" y1="120" x2="80" y2="165" class="stick"/><line id="sq-rl" x1="100" y1="120" x2="120" y2="165" class="stick"/><line id="sq-lf" x1="80" y1="165" x2="65" y2="165" class="stick"/><line id="sq-rf" x1="120" y1="165" x2="135" y2="165" class="stick"/></svg>`,
+    anim:()=>{let down=true,y=0;return setInterval(()=>{y=down?(y<35?y+1.5:y):(y>0?y-1.5:y);if(y>=35)down=false;if(y<=0)down=true;const h=document.getElementById('sq-head');const b=document.getElementById('sq-body');const ll=document.getElementById('sq-ll');const rl=document.getElementById('sq-rl');if(!h)return;h.setAttribute('cy',50+y);b.setAttribute('y1',66+y);b.setAttribute('y2',120+y*0.3);ll.setAttribute('x1',100+y*0.3);ll.setAttribute('y1',120+y*0.3);rl.setAttribute('x1',100+y*0.3);rl.setAttribute('y1',120+y*0.3);},40)},
+    desc:"Pieds à la largeur des épaules, orteils légèrement ouverts vers l'extérieur. Descends en 3 secondes, genoux dans l'axe des orteils. Pause 1 seconde quand les cuisses sont parallèles au sol. Remonte en 2 secondes.",
+    tip:"La lenteur est volontaire — elle active 30% de fibres musculaires en plus par rapport au squat rapide."
+  },
+  planche:{title:"Planche sur coudes",
+    svg:`<svg class="anim-svg" viewBox="0 0 200 200"><g id="pl-g"><circle cx="155" cy="95" r="14" class="stick"/><line x1="141" y1="95" x2="55" y2="120" class="stick"/><line x1="55" y1="120" x2="45" y2="135" class="stick"/><line x1="75" y1="115" x2="65" y2="135" class="stick"/><line x1="55" y1="120" x2="130" y2="143" class="stick"/><line x1="115" y1="140" x2="110" y2="157" class="stick"/><line x1="130" y1="143" x2="127" y2="160" class="stick"/></g></svg>`,
+    anim:()=>{let t=0,g=document.getElementById('pl-g');return setInterval(()=>{t+=0.08;const s=Math.sin(t)*2;if(g)g.setAttribute('transform',`translate(0,${s})`);},50)},
+    desc:"Sur les avant-bras, corps parfaitement droit de la tête aux talons. Contracte simultanément les abdos, les fessiers et les cuisses. Fixe le sol. Ne laisse pas les hanches monter ou tomber.",
+    tip:"Débutante : commence sur les genoux. Objectif sur 4 semaines : 3 × 30 secondes complètes."
+  },
+  pompes:{title:"Pompes inclinées",
+    svg:`<svg class="anim-svg" viewBox="0 0 200 200"><rect x="10" y="155" width="60" height="12" rx="4" class="stick-fill" opacity=".2"/><circle id="pu-head" cx="165" cy="88" r="14" class="stick"/><line id="pu-body" x1="151" y1="92" x2="50" y2="130" class="stick"/><line x1="50" y1="130" x2="40" y2="155" class="stick"/><line x1="65" y1="125" x2="55" y2="152" class="stick"/><line x1="130" y1="110" x2="135" y2="125" class="stick"/><line x1="115" y1="116" x2="120" y2="130" class="stick"/></svg>`,
+    anim:()=>{let down=true,v=0;return setInterval(()=>{v=down?(v<18?v+1.5:v):(v>0?v-1.5:v);if(v>=18)down=false;if(v<=0)down=true;const h=document.getElementById('pu-head');const b=document.getElementById('pu-body');if(!h)return;h.setAttribute('cy',88+v);h.setAttribute('cx',165-v*0.3);b.setAttribute('x1',151-v*0.3);b.setAttribute('y1',92+v);},40)},
+    desc:"Mains sur le bord du canapé (ou sur les genoux si au sol). Corps parfaitement droit. Descends jusqu'à ce que la poitrine frôle l'appui. Expire en poussant pour remonter.",
+    tip:"Progression : canapé (haut) → chaise → sol. Coudes à 45° du corps — pas écartés à 90°."
+  },
+  fentes:{title:"Fentes alternées",
+    svg:`<svg class="anim-svg" viewBox="0 0 200 200"><circle id="lu-head" cx="100" cy="52" r="14" class="stick"/><line x1="100" y1="66" x2="100" y2="115" class="stick"/><line x1="100" y1="80" x2="78" y2="100" class="stick"/><line x1="100" y1="80" x2="122" y2="100" class="stick"/><line id="lu-fl" x1="100" y1="115" x2="75" y2="155" class="stick"/><line id="lu-bl" x1="100" y1="115" x2="130" y2="140" class="stick"/><line id="lu-ff" x1="75" y1="155" x2="60" y2="155" class="stick"/><line id="lu-bf" x1="130" y1="140" x2="145" y2="160" class="stick"/></svg>`,
+    anim:()=>{let down=true,v=0;return setInterval(()=>{v=down?(v<20?v+1.5:v):(v>0?v-1.5:v);if(v>=20)down=false;if(v<=0)down=true;const fl=document.getElementById('lu-fl');const bl=document.getElementById('lu-bl');if(!fl)return;fl.setAttribute('y2',155+v);bl.setAttribute('y2',140+v);},40)},
+    desc:"Debout, pieds joints. Fais un grand pas en avant avec la jambe droite. Descends le genou gauche vers le sol sans le toucher. Remonte, reviens à la position initiale. Alterne les jambes.",
+    tip:"Le genou avant ne dépasse jamais les orteils. Buste droit, regarde devant. Ajoute les lests cheville pour intensifier."
+  },
+  sidelegs:{title:"Abductions latérales",
+    svg:`<svg class="anim-svg" viewBox="0 0 200 200"><circle cx="50" cy="100" r="14" class="stick"/><line x1="50" y1="114" x2="160" y2="130" class="stick"/><line x1="50" y1="114" x2="55" y2="145" class="stick"/><line x1="160" y1="130" x2="165" y2="155" class="stick"/><line id="sl-leg" x1="160" y1="130" x2="165" y2="105" class="stick" stroke-width="3"/></svg>`,
+    anim:()=>{let up=true,v=0,el=document.getElementById('sl-leg');return setInterval(()=>{v=up?(v<25?v+2:v):(v>0?v-2:v);if(v>=25)up=false;if(v<=0)up=true;if(el){el.setAttribute('x2',165+v*0.3);el.setAttribute('y2',105-v);}},40)},
+    desc:"Allongée sur le côté, corps parfaitement aligné. Lest à la cheville. Soulève la jambe du dessus à 45°, pied en flexion (orteil vers toi). Maintiens 1 seconde en haut, descends sans poser.",
+    tip:"Ne laisse pas la hanche basculer en arrière — ça enlève tout le travail des abducteurs."
+  },
+  deadbug:{title:"Dead Bug",
+    svg:`<svg class="anim-svg" viewBox="0 0 200 200"><circle cx="100" cy="75" r="14" class="stick"/><line x1="100" y1="89" x2="100" y2="140" class="stick"/><line id="db-ra" x1="100" y1="100" x2="145" y2="80" class="stick"/><line id="db-la" x1="100" y1="100" x2="55" y2="80" class="stick"/><line id="db-rl" x1="100" y1="140" x2="145" y2="155" class="stick"/><line id="db-ll" x1="100" y1="140" x2="55" y2="125" class="stick"/></svg>`,
+    anim:()=>{let t=0;return setInterval(()=>{t+=0.06;const s=Math.sin(t);const ra=document.getElementById('db-ra');const ll=document.getElementById('db-ll');if(!ra)return;ra.setAttribute('x2',145+s*20);ra.setAttribute('y2',80-s*15);ll.setAttribute('x2',55-s*20);ll.setAttribute('y2',125+s*15);},40)},
+    desc:"Allongée sur le dos, bras tendus vers le plafond, jambes à 90°. Abaisse SIMULTANÉMENT le bras droit et la jambe gauche vers le sol, sans décoller le bas du dos. Reviens lentement. Change de côté.",
+    tip:"L'objectif unique : le bas du dos reste collé au sol en permanence. Si ça se décolle, réduire l'amplitude."
+  },
+  superman:{title:"Superman",
+    svg:`<svg class="anim-svg" viewBox="0 0 200 200"><circle cx="155" cy="110" r="13" class="stick"/><line x1="142" y1="114" x2="50" y2="130" class="stick"/><line x1="110" y1="121" x2="105" y2="145" class="stick"/><line x1="90" y1="124" x2="85" y2="148" class="stick"/><line id="su-ra" x1="142" y1="110" x2="175" y2="90" class="stick"/><line id="su-la" x1="50" y1="130" x2="20" y2="145" class="stick"/></svg>`,
+    anim:()=>{let up=true,v=0;return setInterval(()=>{v=up?(v<15?v+1:v):(v>0?v-1:v);if(v>=15)up=false;if(v<=0)up=true;const ra=document.getElementById('su-ra');const la=document.getElementById('su-la');if(!ra)return;ra.setAttribute('y2',90-v);la.setAttribute('y2',145+v);},50)},
+    desc:"Allongée ventre au sol, bras tendus devant toi. Soulève simultanément les bras et les jambes en contractant le bas du dos et les fessiers. Tiens 2 secondes en haut.",
+    tip:"Regarde vers le bas — ne remonte pas la tête pour garder la nuque dans l'axe de la colonne."
+  },
+  hundred:{title:"The Hundred",
+    svg:`<svg class="anim-svg" viewBox="0 0 200 200"><circle cx="30" cy="105" r="13" class="stick"/><line x1="43" y1="108" x2="140" y2="125" class="stick"/><line x1="100" y1="118" x2="95" y2="145" class="stick"/><line x1="120" y1="121" x2="118" y2="148" class="stick"/><line id="h-rl" x1="140" y1="125" x2="175" y2="110" class="stick"/><line id="h-ll" x1="140" y1="125" x2="170" y2="120" class="stick"/><line id="h-ra" x1="43" y1="115" x2="80" y2="125" class="stick"/><line id="h-la" x1="43" y1="115" x2="78" y2="132" class="stick"/></svg>`,
+    anim:()=>{let t=0;return setInterval(()=>{t++;const pump=Math.sin(t*0.4)*6;const ra=document.getElementById('h-ra');const la=document.getElementById('h-la');if(!ra)return;ra.setAttribute('y2',125+pump);la.setAttribute('y2',132-pump);},80)},
+    desc:"Allongée sur le dos, jambes levées à 45°, tête et épaules décollées du sol. Bras tendus le long du corps qui pompe de haut en bas (petits mouvements vifs). Compte 100 battements en respirant par 5.",
+    tip:"Difficile au début : plie les genoux à 90° pour réduire la charge. Avance progressivement vers les jambes tendues."
+  },
+  childpose:{title:"Child's Pose",
+    svg:`<svg class="anim-svg" viewBox="0 0 200 200"><circle cx="155" cy="105" r="13" class="stick"/><line x1="143" y1="110" x2="100" y2="140" class="stick"/><line x1="100" y1="140" x2="60" y2="130" class="stick"/><line x1="100" y1="140" x2="95" y2="165" class="stick"/><line x1="100" y1="140" x2="115" y2="162" class="stick"/><line x1="60" y1="130" x2="30" y2="125" class="stick"/><line x1="60" y1="130" x2="35" y2="135" class="stick"/></svg>`,
+    anim:()=>{let t=0,g=document.querySelector('#m-anim svg');return setInterval(()=>{t+=0.03;if(g)g.style.transform=`scaleY(${1+Math.sin(t)*0.03})`;},60)},
+    desc:"À genoux sur le tapis, assis sur les talons. Penche lentement le buste en avant, bras étendus devant toi ou le long du corps. Laisse le front se poser sur le tapis. Relâche complètement.",
+    tip:"Respire lentement et profondément. C'est une récupération physique ET mentale — prends le temps."
+  },
+  rollup:{title:"Roll Up",
+    svg:`<svg class="anim-svg" viewBox="0 0 200 200"><circle id="ru-head" cx="100" cy="80" r="13" class="stick"/><line id="ru-body" x1="100" y1="93" x2="100" y2="145" class="stick"/><line x1="100" y1="145" x2="75" y2="165" class="stick"/><line x1="100" y1="145" x2="125" y2="165" class="stick"/><line id="ru-arms" x1="100" y1="93" x2="100" y2="60" class="stick" stroke-dasharray="none"/></svg>`,
+    anim:()=>{let up=true,v=0;return setInterval(()=>{v=up?(v<30?v+1.5:v):(v>0?v-1.5:v);if(v>=30)up=false;if(v<=0)up=true;const h=document.getElementById('ru-head');const b=document.getElementById('ru-body');if(!h)return;h.setAttribute('cy',80-v*0.5);h.setAttribute('cx',100+v*0.8);b.setAttribute('x1',100+v*0.5);b.setAttribute('y1',93-v*0.3);},40)},
+    desc:"Allongée sur le dos, bras tendus au-dessus de la tête. Inspire. En expirant, monte vertèbre par vertèbre — d'abord la tête, puis les épaules, le dos, jusqu'à te pencher vers les pieds, bras tendus. Redescends aussi lentement.",
+    tip:"Si trop difficile en début de programme, aide-toi en plaçant les mains derrière les genoux."
+  },
+  singleleg:{title:"Single Leg Stretch",
+    svg:`<svg class="anim-svg" viewBox="0 0 200 200"><circle cx="35" cy="108" r="13" class="stick"/><line x1="48" y1="110" x2="120" y2="125" class="stick"/><line x1="120" y1="125" x2="160" y2="105" class="stick"/><line id="sl2-leg" x1="120" y1="125" x2="170" y2="145" class="stick"/><line x1="80" y1="118" x2="75" y2="100" class="stick"/><line x1="100" y1="121" x2="105" y2="103" class="stick"/></svg>`,
+    anim:()=>{let alt=true,t=0;return setInterval(()=>{t++;if(t%30===0)alt=!alt;const el=document.getElementById('sl2-leg');if(!el)return;el.setAttribute('y2',alt?110:145);el.setAttribute('x2',alt?155:170);},50)},
+    desc:"Tête et épaules décollées du sol, mains derrière la tête (sans tirer). Une jambe tendue à 45°, l'autre fléchie vers la poitrine. Alterne en tirant doucement le genou vers toi.",
+    tip:"Expire à chaque changement de jambe. Le bas du dos reste ancré au sol."
+  },
+  bicycle:{title:"Bicycle Crunch",
+    svg:`<svg class="anim-svg" viewBox="0 0 200 200"><circle cx="30" cy="108" r="13" class="stick"/><line x1="43" y1="112" x2="120" y2="128" class="stick"/><line x1="80" y1="120" x2="70" y2="100" class="stick"/><line x1="100" y1="123" x2="100" y2="103" class="stick"/><line id="bc-rl" x1="120" y1="128" x2="160" y2="108" class="stick"/><line id="bc-ll" x1="120" y1="128" x2="160" y2="148" class="stick"/></svg>`,
+    anim:()=>{let alt=true,t=0;return setInterval(()=>{t++;if(t%35===0)alt=!alt;const rl=document.getElementById('bc-rl');const ll=document.getElementById('bc-ll');if(!rl)return;rl.setAttribute('y2',alt?95:118);ll.setAttribute('y2',alt?148:130);},50)},
+    desc:"Allongée sur le dos, mains légèrement derrière les oreilles (sans tirer la nuque). Lève les jambes à 90°. Tourne le coude droit vers le genou gauche en tendant la jambe droite. Alterne lentement.",
+    tip:"LENTEUR prioritaire sur la vitesse — les mouvements rapides désactivent les abdos. Expire à chaque rotation."
+  },
+  corde:{title:"Corde à sauter",
+    svg:`<svg class="anim-svg" viewBox="0 0 200 200"><circle id="cr-head" cx="100" cy="60" r="14" class="stick"/><line x1="100" y1="74" x2="100" y2="130" class="stick"/><line x1="100" y1="88" x2="75" y2="108" class="stick"/><line x1="100" y1="88" x2="125" y2="108" class="stick"/><line id="cr-ll" x1="100" y1="130" x2="82" y2="165" class="stick"/><line id="cr-rl" x1="100" y1="130" x2="118" y2="165" class="stick"/><path id="cr-rope" d="M 35 130 Q 100 170 165 130" class="stick" fill="none"/></svg>`,
+    anim:()=>{let t=0;return setInterval(()=>{t+=0.15;const jump=Math.abs(Math.sin(t))*12;const head=document.getElementById('cr-head');const ll=document.getElementById('cr-ll');const rl=document.getElementById('cr-rl');const rope=document.getElementById('cr-rope');if(!head)return;head.setAttribute('cy',60-jump);ll.setAttribute('y1',130-jump*0.5);ll.setAttribute('y2',165-jump*0.3);rl.setAttribute('y1',130-jump*0.5);rl.setAttribute('y2',165-jump*0.3);const ry=130+15*Math.sin(t*2+Math.PI);rope.setAttribute('d',`M 35 ${ry} Q 100 ${ry+30} 165 ${ry}`);},40)},
+    desc:"Sauts légers sur la pointe des pieds — coudes proches du corps, ce sont les poignets qui font tourner la corde (pas les bras entiers). Atterris doucement — si on t'entend de la pièce d'à côté, c'est trop brutal.",
+    tip:"Progression semaine par semaine : S1-2 = 20s effort/40s repos · S3-4 = 30s/30s · S5+ = 40s/20s."
+  },
+  stretch:{title:"Étirements de récupération",
+    svg:`<svg class="anim-svg" viewBox="0 0 200 200"><circle cx="100" cy="55" r="14" class="stick"/><line x1="100" y1="69" x2="100" y2="125" class="stick"/><line id="st-ra" x1="100" y1="90" x2="145" y2="75" class="stick"/><line id="st-la" x1="100" y1="90" x2="55" y2="75" class="stick"/><line x1="100" y1="125" x2="78" y2="170" class="stick"/><line x1="100" y1="125" x2="122" y2="170" class="stick"/></svg>`,
+    anim:()=>{let t=0;return setInterval(()=>{t+=0.03;const s=Math.sin(t)*10;const ra=document.getElementById('st-ra');const la=document.getElementById('st-la');if(!ra)return;ra.setAttribute('y2',75-s);ra.setAttribute('x2',145+s*0.5);la.setAttribute('y2',75-s);la.setAttribute('x2',55-s*0.5);},50)},
+    desc:"Après chaque séance, prends 5 à 10 minutes pour étirer les groupes musculaires sollicités. Maintiens chaque position 30 à 45 secondes en respirant calmement — sans forcer, sans douleur.",
+    tip:"Jamais d'étirement à froid avant l'effort. Après l'effort, les étirements accélèrent la récupération et améliorent la souplesse sur le long terme."
+  }
+};
+
+let doneD=new Set(), openD=null, openR={}, exDone={};
+let tmrInt=null, tmrSec=0, tmrPhase='ready', tmrRnd=0, tmrRndDone=new Set();
+let tmrCurW=30, tmrCurR=30, tmrCurRds=10, tmrDay=null;
+let modalAnim=null;
+
+function goTab(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+
+function buildDots(){
+  const c=document.getElementById('wdots');
+  c.innerHTML=DAYS.map((_,i)=>`<div class="wd${doneD.has(i)?' done':''}" style="flex:1;height:5px;border-radius:3px;background:${doneD.has(i)?'var(--green)':'var(--bg3)'}"></div>`).join('');
+  const n=doneD.size;
+  document.getElementById('week-count').textContent=n+'/7';
+  document.getElementById('prog-txt').textContent=n===0?'Coche tes séances au fil des jours':`${n}/7 journées réalisées cette semaine`;
+}
+
+function buildDays(){
+  const c=document.getElementById('day-list');
+  c.innerHTML='';
+  DAYS.forEach((d,i)=>{
+    const exHtml=d.ex.map((e,ei)=>`
+      <div class="ex-row">
+        <div class="ex-chk${(exDone[i]||new Set()).has(ei)?' done':''}" onclick="toggleEx(${i},${ei})">
+          ${(exDone[i]||new Set()).has(ei)?'<i class="ti ti-check"></i>':''}
+        </div>
+        <div class="ex-info">
+          <div class="ex-name">${e.n}</div>
+          <div class="ex-detail">${e.d}</div>
+          ${e.demo?`<button class="ex-demo-btn" onclick="showDemo('${e.demo}')"><i class="ti ti-play" style="font-size:10px"></i> Voir le mouvement</button>`:''}
+        </div>
+      </div>`).join('');
+
+    let tmrHtml='';
+    if(d.hasTmr){
+      const rdsHtml=Array.from({length:d.trd},(_,r)=>`
+        <div class="round-dot${tmrRndDone.has(i+'-'+r)?' done':(tmrDay===i&&tmrRnd===r+1&&tmrPhase!=='ready'?' current':'')}" onclick="if(tmrDay===${i})toggleRound(${i},${r})">${r+1}</div>`).join('');
+      tmrHtml=`
+        <div class="timer-wrap" id="tmr-${i}">
+          <div class="timer-top">
+            <div class="timer-label-top">${d.tw}s effort · ${d.tr}s repos · ${d.trd} tours</div>
+            <div class="timer-big" id="td-${i}">00:${String(d.tw).padStart(2,'0')}</div>
+            <div class="timer-phase-lbl phase-ready" id="tp-${i}">PRÊT</div>
+            <div class="prog-bar"><div class="prog-fill" id="tpf-${i}" style="width:100%"></div></div>
+            <div class="timer-info-row">
+              <span class="timer-round-info" id="tr-${i}">Appuie sur démarrer</span>
+            </div>
+            <div class="timer-btns">
+              <button class="tbtn primary" onclick="startT(${i})"><i class="ti ti-player-play"></i> Démarrer</button>
+              <button class="tbtn" onclick="pauseT()"><i class="ti ti-player-pause"></i></button>
+              <button class="tbtn" onclick="resetT(${i})"><i class="ti ti-refresh"></i></button>
+            </div>
+          </div>
+          <div class="round-list">
+            <div class="round-list-title">Tours réalisés</div>
+            <div class="rounds-grid" id="rdg-${i}">${rdsHtml}</div>
+          </div>
+        </div>`;
+    }
+
+    const wrap=document.createElement('div');
+    wrap.className='day-card';
+    wrap.innerHTML=`
+      <div class="day-head" onclick="toggleDay(${i})">
+        <div class="day-dot dot-${d.dot}"></div>
+        <div class="day-info">
+          <div class="day-name">${d.name}</div>
+          <div class="day-meta">${d.type} · ${d.dur}</div>
+        </div>
+        <div class="day-right">
+          <div class="check-circle${doneD.has(i)?' done':''}" onclick="toggleDone(${i},event)">${doneD.has(i)?'<i class="ti ti-check"></i>':''}</div>
+          <i class="ti ti-chevron-down caret${openD===i?' open':''}"></i>
+        </div>
+      </div>
+      <div class="day-body${openD===i?' open':''}">
+        <div class="ex-list">${exHtml}</div>
+        ${tmrHtml}
+      </div>`;
+    c.appendChild(wrap);
+  });
+}
+
+function toggleEx(di,ei){
+  if(!exDone[di])exDone[di]=new Set();
+  if(exDone[di].has(ei))exDone[di].delete(ei);else exDone[di].add(ei);
+  buildDays();
+}
+function toggleDay(i){openD=openD===i?null:i;buildDays();}
+function toggleDone(i,e){
+  e.stopPropagation();
+  if(doneD.has(i))doneD.delete(i);else doneD.add(i);
+  buildDays();buildDots();
+}
+function toggleRound(di,r){
+  const k=di+'-'+r;
+  if(tmrRndDone.has(k))tmrRndDone.delete(k);else tmrRndDone.add(k);
+  buildDays();
+}
+
+function startT(di){
+  if(tmrDay!==null&&tmrDay!==di)resetT(tmrDay);
+  stopT();
+  tmrDay=di; const d=DAYS[di];
+  tmrCurW=d.tw; tmrCurR=d.tr; tmrCurRds=d.trd;
+  tmrPhase='work'; tmrRnd=1; tmrSec=d.tw;
+  beep(660,0.1);
+  updateTUI();
+  tmrInt=setInterval(()=>{
+    tmrSec--;
+    if(tmrSec<0){
+      if(tmrPhase==='work'){
+        beep(440,0.2);
+        tmrRndDone.add(tmrDay+'-'+(tmrRnd-1));
+        tmrPhase='rest'; tmrSec=tmrCurR;
+      } else {
+        tmrRnd++;
+        if(tmrRnd>tmrCurRds){beep(880,0.3);stopT();resetT(di);return;}
+        beep(660,0.1);
+        tmrPhase='work'; tmrSec=tmrCurW;
+      }
+      buildDays();
+    }
+    updateTUI();
+  },1000);
+}
+function stopT(){clearInterval(tmrInt);tmrInt=null;}
+function pauseT(){if(tmrInt){stopT();}else if(tmrDay!==null){startT(tmrDay);}}
+function resetT(di){
+  stopT(); tmrDay=null; tmrPhase='ready'; tmrRnd=0; tmrRndDone.clear();
+  buildDays();
+}
+function updateTUI(){
+  if(tmrDay===null)return;
+  const di=tmrDay;
+  const total=tmrPhase==='work'?tmrCurW:tmrCurR;
+  const m=Math.floor(tmrSec/60),s=tmrSec%60;
+  const disp=document.getElementById('td-'+di);
+  const ph=document.getElementById('tp-'+di);
+  const rn=document.getElementById('tr-'+di);
+  const pf=document.getElementById('tpf-'+di);
+  if(!disp)return;
+  disp.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  ph.textContent=tmrPhase==='work'?'EXERCICE':'REPOS';
+  ph.className='timer-phase-lbl '+(tmrPhase==='work'?'phase-work':'phase-rest');
+  rn.textContent='Tour '+tmrRnd+' / '+tmrCurRds;
+  pf.style.width=Math.round((tmrSec/total)*100)+'%';
+  pf.style.background=tmrPhase==='work'?'#E24B4A':'var(--green)';
+}
+
+function buildRecipes(id,list){
+  const c=document.getElementById(id);
+  if(!c)return;
+  c.innerHTML=list.map((r,i)=>`
+    <div class="recipe-card">
+      <div class="recipe-head" onclick="toggleRecipe('${id}',${i})">
+        <div class="recipe-icon" style="background:${r.bg};font-size:20px">${r.icon}</div>
+        <div class="recipe-info">
+          <div class="recipe-name">${r.name}</div>
+          <div class="recipe-sub">${r.sub}</div>
+        </div>
+        <i class="ti ti-chevron-down caret${openR[id+i]?' open':''}"></i>
+      </div>
+      <div class="recipe-body${openR[id+i]?' open':''}">
+        <div class="recipe-ing">
+          <div class="recipe-ing-title">Ingrédients</div>
+          <div class="ing-list">${r.ing.map(x=>`<span class="ing-tag">${x}</span>`).join('')}</div>
+        </div>
+        <div class="recipe-steps">${r.steps}</div>
+        <div class="tag-row">${r.tags.map(t=>`<span class="tag tag-${t==='GF'?'gf':t.toLowerCase()}">${t==='P'?'Protéines':t==='G'?'Glucides':t==='L'?'Lipides':'Sans gluten'}</span>`).join('')}</div>
+      </div>
+    </div>`).join('');
+}
+function toggleRecipe(id,i){
+  const k=id+i; openR[k]=!openR[k];
+  buildRecipes(id,id==='recipes-breakfast'?RECIPES.breakfast:id==='recipes-lunch'?RECIPES.lunch:id==='recipes-dinner'?RECIPES.dinner:RECIPES.snack);
+}
+
+function buildGuide(){
+  const c=document.getElementById('guide-content');
+  c.innerHTML=GUIDE_DATA.map(s=>`
+    <div class="guide-section">
+      <div class="guide-h" style="color:${s.color}"><i class="ti ${s.icon}" style="font-size:16px"></i>${s.title}</div>
+      <div class="food-grid">${s.items.map(f=>`
+        <div class="food-row">
+          <div class="food-emoji">${f.e}</div>
+          <div class="food-info">
+            <div class="food-name">${f.n}</div>
+            <div class="food-qty">${f.q}</div>
+            <div class="food-note">${f.note}</div>
+          </div>
+        </div>`).join('')}</div>
+    </div>`).join('');
+}
+
+function showDemo(key){
+  const d=DEMOS[key]; if(!d)return;
+  document.getElementById('m-title').textContent=d.title;
+  document.getElementById('m-desc').textContent=d.desc;
+  document.getElementById('m-tip').textContent=d.tip;
+  const stage=document.getElementById('m-anim');
+  stage.innerHTML=d.svg;
+  document.getElementById('modal').classList.add('open');
+  clearInterval(modalAnim);
+  modalAnim=d.anim();
+}
+function closeModal(){
+  clearInterval(modalAnim); modalAnim=null;
+  document.getElementById('modal').classList.remove('open');
+}
+function maybeClose(e){if(e.target.id==='modal')closeModal();}
+
+buildDots(); buildDays();
+buildRecipes('recipes-breakfast',RECIPES.breakfast);
+buildRecipes('recipes-lunch',RECIPES.lunch);
+buildRecipes('recipes-dinner',RECIPES.dinner);
+buildRecipes('recipes-snack',RECIPES.snack);
+buildGuide();
+</script>
+</body>
+</html>
